@@ -1,2 +1,2 @@
-# RetailManager
-Retail Managment System built by Brandious
+# Retail Manager
+Retail Managment System built by *Brandious*
