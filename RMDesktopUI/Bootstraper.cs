@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using RMDesktopUI.Helpers;
 using RMDesktopUI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace RMDesktopUI
 {
@@ -15,6 +17,10 @@ namespace RMDesktopUI
         public Bootstraper()
         {
             Initialize();
+
+            ConventionManager.AddElementConvention<PasswordBox>(
+                PasswordBoxHelper.BoundPasswordProperty, "Password", "PasswordChanged"
+                );
         }
 
         protected override void Configure()
@@ -22,7 +28,8 @@ namespace RMDesktopUI
             _container.Instance(_container);
 
             _container.Singleton<IWindowManager, WindowManager>()
-                      .Singleton<IEventAggregator, EventAggregator>();
+                      .Singleton<IEventAggregator, EventAggregator>()
+                      .Singleton<IAPIHelper, APIHelper>();
 
             GetType().Assembly.GetTypes().Where(type => type.IsClass)
                                          .Where(type => type.Name.EndsWith("ViewModel"))
@@ -30,6 +37,8 @@ namespace RMDesktopUI
                                          .ForEach(viewModelType => _container.RegisterPerRequest(
                                                 viewModelType, viewModelType.ToString(), viewModelType
                                           ));
+
+
         }
 
         protected override void OnStartup(object sender, StartupEventArgs e)
