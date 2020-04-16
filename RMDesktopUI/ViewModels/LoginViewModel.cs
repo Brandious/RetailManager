@@ -51,6 +51,7 @@ namespace RMDesktopUI.ViewModels
 
 				return output;
 			}
+			set { }
 		}
 
 		private string  _errorMessage;	
