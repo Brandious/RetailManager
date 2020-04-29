@@ -7,6 +7,6 @@ BEGIN
 
 	SELECT 
 			Id, ProductName, [Description], 
-			QuantityInStock, RetailPrice
+			QuantityInStock, RetailPrice, IsTaxable
 	FROM [dbo].[Product] ORDER BY ProductName;
 END

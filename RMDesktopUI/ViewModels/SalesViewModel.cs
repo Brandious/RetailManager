@@ -1,5 +1,6 @@
 ﻿using Caliburn.Micro;
 using RMDesktopUI.Library.Api;
+using RMDesktopUI.Library.Helpers;
 using RMDesktopUI.Library.Models;
 using System.ComponentModel;
 using System.Linq;
@@ -12,10 +13,13 @@ namespace RMDesktopUI.ViewModels
 
 		private BindingList<ProductModel> _products;
 		private IProductEndpoint _productEndpoint;
+		private IConfigHelper _configHelper;
 
-		public SalesViewModel(IProductEndpoint productEndpoint)
+		public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper)
 		{
 			_productEndpoint = productEndpoint;
+			_configHelper = configHelper;
+
 			
 		}
 
@@ -84,27 +88,45 @@ namespace RMDesktopUI.ViewModels
 		{
 			get 
 			{
-				//Add Calculation
-				decimal subTotal = 0;
-				foreach(var item in Cart)
-				{
-					subTotal += item.Product.RetailPrice * item.QuantityInCart;
-				}
 
-				return subTotal.ToString("C");
+				return CalculateSubtotal().ToString("c");
 			}
 
 		}
 
+		private decimal CalculateSubtotal()
+		{
+			decimal subTotal = 0;
+			foreach (var item in Cart)
+			{
+				subTotal += item.Product.RetailPrice * item.QuantityInCart;
+			}
+
+			return subTotal;
+		}
 
 		public string Tax
 		{
 			get
 			{
-				//Add Calculation
-				return "$ 0.00";
+
+				return CalculateTax().ToString("C");
+		 		
 			}
 
+		}
+
+		private decimal CalculateTax()
+		{
+			decimal taxAmount = 0;
+
+			foreach (var item in Cart)
+			{
+				decimal isTaxable = item.Product.IsTaxable ? 1 : 0;
+				taxAmount += item.Product.RetailPrice * item.QuantityInCart * _configHelper.GetTaxRate() * isTaxable;
+			}
+
+			return taxAmount;
 		}
 
 		public string Total
@@ -112,7 +134,7 @@ namespace RMDesktopUI.ViewModels
 			get
 			{
 				//Add Calculation
-				return "$ 0.00";
+				return (CalculateSubtotal() + CalculateTax()).ToString("C");
 			}
 
 		}
@@ -180,6 +202,8 @@ namespace RMDesktopUI.ViewModels
 			SelectedProduct.QuantityInStock -= ItemQuantity;
 			ItemQuantity = 1;
 			NotifyOfPropertyChange(() => SubTotal);
+			NotifyOfPropertyChange(() => Tax);
+			NotifyOfPropertyChange(() => Total);
 
 		}
 
@@ -187,6 +211,8 @@ namespace RMDesktopUI.ViewModels
 		{
 
 			NotifyOfPropertyChange(() => SubTotal);
+			NotifyOfPropertyChange(() => Tax);
+			NotifyOfPropertyChange(() => Total);
 		}
 
 		public void CheckOut()
