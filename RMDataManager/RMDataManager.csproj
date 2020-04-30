@@ -226,6 +226,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202004292339474_FirstOne.cs" />
+    <Compile Include="Migrations\202004292339474_FirstOne.designer.cs">
+      <DependentUpon>202004292339474_FirstOne.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -328,6 +333,11 @@
       <Project>{56A01A4E-85DE-4BFD-93D0-D8F12D5AAFE8}</Project>
       <Name>RMDataManager.Library</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202004292339474_FirstOne.resx">
+      <DependentUpon>202004292339474_FirstOne.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
