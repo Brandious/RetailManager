@@ -14,11 +14,13 @@ namespace RMDesktopUI.ViewModels
 		private BindingList<ProductModel> _products;
 		private IProductEndpoint _productEndpoint;
 		private IConfigHelper _configHelper;
+		private ISaleEndpoint _saleEndpoint;
 
-		public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper)
+		public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndpoint saleEndpoint)
 		{
 			_productEndpoint = productEndpoint;
 			_configHelper = configHelper;
+			_saleEndpoint = saleEndpoint;
 
 			
 		}
@@ -88,7 +90,6 @@ namespace RMDesktopUI.ViewModels
 		{
 			get 
 			{
-
 				return CalculateSubtotal().ToString("c");
 			}
 
@@ -96,14 +97,6 @@ namespace RMDesktopUI.ViewModels
 
 		private decimal CalculateSubtotal()
 		{
-			//decimal subTotal = 0;
-			//foreach (var item in Cart)
-			//{
-			//	subTotal += item.Product.RetailPrice * item.QuantityInCart;
-			//}
-
-			//return subTotal;
-
 			return Cart.Sum(x => x.Product.RetailPrice * x.QuantityInCart);
 		}
 
@@ -120,19 +113,11 @@ namespace RMDesktopUI.ViewModels
 
 		private decimal CalculateTax()
 		{
-			//decimal taxAmount = 0;
 
 
 			return Cart.Where(x => x.Product.IsTaxable)
 				       .Sum(x => x.Product.RetailPrice * x.QuantityInCart * _configHelper.GetTaxRate());
 
-			//foreach (var item in Cart)
-			//{
-			//	decimal isTaxable = item.Product.IsTaxable ? 1 : 0;
-			//	taxAmount += item.Product.RetailPrice * item.QuantityInCart * _configHelper.GetTaxRate() * isTaxable;
-			//}
-
-			//return taxAmount;
 		}
 
 		public string Total
@@ -177,12 +162,11 @@ namespace RMDesktopUI.ViewModels
 		{
 			get
 			{
-				bool output = false;
-
-				//Make sure something is Selected
-				//Make sure ItemQuantity true
-
-				return output;
+				
+				
+				
+				
+				return (Cart.Count > 0) ? true : false;			
 			}
 		}
 
@@ -207,9 +191,11 @@ namespace RMDesktopUI.ViewModels
 			}			
 			SelectedProduct.QuantityInStock -= ItemQuantity;
 			ItemQuantity = 1;
+
 			NotifyOfPropertyChange(() => SubTotal);
 			NotifyOfPropertyChange(() => Tax);
 			NotifyOfPropertyChange(() => Total);
+			NotifyOfPropertyChange(() => CanCheckOut);
 
 		}
 
@@ -219,10 +205,23 @@ namespace RMDesktopUI.ViewModels
 			NotifyOfPropertyChange(() => SubTotal);
 			NotifyOfPropertyChange(() => Tax);
 			NotifyOfPropertyChange(() => Total);
+			NotifyOfPropertyChange(() => CanCheckOut);
 		}
 
-		public void CheckOut()
+		public async Task CheckOut()
 		{
+			// Create a Sale Model, Post it to API
+			SaleModel sale = new SaleModel();
+			foreach (var item in Cart)
+			{
+				sale.SaleDetails.Add(new SaleDetailModel{
+					ProductId = item.Product.Id,
+					Quantity = item.QuantityInCart
+				});
+			}
+
+			await _saleEndpoint.PostSale(sale);
+
 
 		}
 

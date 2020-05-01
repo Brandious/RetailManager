@@ -16,5 +16,12 @@ namespace RMDataManager.Library.DataAccess
 
             return sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetAll",new { },"RMData");
         }
+
+        public ProductModel GetProductById(int id)
+        {
+            SqlDataAccess sql = new SqlDataAccess();
+
+            return sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetById", new { Id = id }, "RMData").FirstOrDefault();
+        }
     }
 }
